@@ -21,10 +21,11 @@
 
     <script>
         // socket code in js.
+
         const socket = io.connect('http://localhost:3000');
-        const username = prompt("Enter Your Name: ");
+        const username = prompt('Enter your name');
         // emit the username to the server
-        socket.emit('join', username);
+        socket.emit("join", username);
 
         // get the elements
         const messageInput = document.getElementById("message-input");
@@ -34,7 +35,6 @@
         sendButton.addEventListener('click', function () {
             // read the message from input and send to server.
             const message = messageInput.value;
-
             if (message) {
                 socket.emit('new_message', message); // Emitting the message to the server
 
@@ -42,15 +42,27 @@
                 const messageElement = document.createElement("div");
                 messageElement.innerText = username + ": " + message;
                 messageList.appendChild(messageElement);
+
                 //  Reset the value of textbox to empty
                 messageInput.value = '';
             }
         });
 
+        // Display messages on the UI.
+
+        socket.on('load_messages', (messages)=>{
+            messages.forEach(message => {
+                const messageElement = document.createElement("div");
+                messageElement.innerText = new Date(message.timestamp).toDateString() + "-" + message.username + ":" + message.message;
+                messageList.appendChild(messageElement);
+                    
+            });
+        })
+
         // Listen for broadcast message, and add it to the list.
         socket.on('broadcast_message', (userMessage) => {
             const messageElement = document.createElement("div");
-            messageElement.innerText = userMessage.username + ": " + userMessage.message;
+            messageElement.innerText = userMessage.username + ":" + userMessage.message;
             messageList.appendChild(messageElement);
         })
 
